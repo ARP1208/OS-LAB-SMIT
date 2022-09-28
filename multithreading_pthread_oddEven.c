@@ -8,7 +8,7 @@ void *thread1(){
     {
         if (i % 2 != 0)
         {
-            printf("%d\t");
+            printf("%d\t", i);
         }
     }
 }
@@ -19,7 +19,7 @@ void *thread2(){
     {
         if (i % 2 == 0)
         {
-            printf("%d\t");
+            printf("%d\t", i);
         }
     }
 }
