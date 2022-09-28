@@ -15,7 +15,7 @@ void *reader(void* param)
     if(readercount==1)
         sem_wait(&y);
     sem_post(&x);
-    printf(" reader no. %d is inside\n",readercount);
+    printf("Reader no. %d is inside\n",readercount);
     usleep(3);
     sem_wait(&x);
     readercount--;
@@ -24,7 +24,7 @@ void *reader(void* param)
         sem_post(&y);
     }
     sem_post(&x);
-    printf("reader no. %d is leaving\n",readercount+1);
+    printf("Reader no. %d is leaving\n",readercount+1);
     return NULL;
 }
 
