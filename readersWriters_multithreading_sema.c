@@ -41,7 +41,7 @@ void *writer(void* param)
 int main()
 {
     int n2,i;
-    printf("Enter the number of readers & writers :");
+    printf("Enter the number of readers & writers: ");
     scanf("%d",&n2);
     printf("\n");
     int n1[n2];
