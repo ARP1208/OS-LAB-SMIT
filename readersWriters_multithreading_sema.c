@@ -1,61 +1,67 @@
-#include<semaphore.h>
-#include<stdio.h>
-#include<stdlib.h>
-#include<unistd.h>
-#include<pthread.h>
-sem_t x,y;
-pthread_t tid;
-pthread_t writerthreads[100],readerthreads[100];
-int readercount = 0;
+#include <pthread.h>
+#include <semaphore.h>
+#include <stdio.h>
 
-void *reader(void* param)
-{
-    sem_wait(&x);
-    readercount++;
-    if(readercount==1)
-        sem_wait(&y);
-    sem_post(&x);
-    printf("Reader no. %d is inside\n",readercount);
-    usleep(3);
-    sem_wait(&x);
-    readercount--;
-    if(readercount==0)
-    {
-        sem_post(&y);
-    }
-    sem_post(&x);
-    printf("Reader no. %d is leaving\n",readercount+1);
-    return NULL;
+sem_t wrt;
+pthread_mutex_t mutex;
+int cnt = 1;
+int numreader = 0;
+
+void *writer(void *wno)
+{   
+    sem_wait(&wrt);
+    cnt = cnt*2;
+    printf("Writer %d modified cnt to %d\n",(*((int *)wno)),cnt);
+    sem_post(&wrt);
+
 }
+void *reader(void *rno)
+{   
+    // Reader acquire the lock before modifying numreader
+    pthread_mutex_lock(&mutex);
+    numreader++;
+    if(numreader == 1) {
+        sem_wait(&wrt); // If this id the first reader, then it will block the writer
+    }
+    pthread_mutex_unlock(&mutex);
+    // Reading Section
+    printf("Reader %d: read cnt as %d\n",*((int *)rno),cnt);
 
-void *writer(void* param)
-{
-    printf("Writer is trying to enter\n");
-    sem_wait(&y);
-    printf("Writer has entered\n");
-    sem_post(&y);
-    printf("Writer is leaving\n");
-    return NULL;
+    // Reader acquire the lock before modifying numreader
+    pthread_mutex_lock(&mutex);
+    numreader--;
+    if(numreader == 0) {
+        sem_post(&wrt); // If this is the last reader, it will wake up the writer.
+    }
+    pthread_mutex_unlock(&mutex);
 }
 
 int main()
-{
-    int n2,i;
-    printf("Enter the number of readers & writers: ");
-    scanf("%d",&n2);
-    printf("\n");
-    int n1[n2];
-    sem_init(&x,0,1);
-    sem_init(&y,0,1);
-    for(i=0;i< n2;i++)
-    {
-        pthread_create(&writerthreads[i],NULL,reader,NULL);
-        pthread_create(&readerthreads[i],NULL,writer,NULL);
+{   
+
+    pthread_t read[10],write[5];
+    pthread_mutex_init(&mutex, NULL);
+    sem_init(&wrt,0,1);
+
+    int a[10] = {1,2,3,4,5,6,7,8,9,10}; //Just used for numbering the producer and consumer
+
+    for(int i = 0; i < 10; i++) {
+        pthread_create(&read[i], NULL, (void *)reader, (void *)&a[i]);
     }
-    for(i=0;i<n2;i++)
-    {
-        pthread_join(writerthreads[i],NULL);
-        pthread_join(readerthreads[i],NULL);
+    for(int i = 0; i < 5; i++) {
+        pthread_create(&write[i], NULL, (void *)writer, (void *)&a[i]);
     }
 
+    for(int i = 0; i < 10; i++) {
+        pthread_join(read[i], NULL);
+    }
+    for(int i = 0; i < 5; i++) {
+        pthread_join(write[i], NULL);
+    }
+
+    pthread_mutex_destroy(&mutex);
+    sem_destroy(&wrt);
+
+    return 0;
+    
 }
