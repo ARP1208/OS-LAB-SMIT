@@ -50,7 +50,34 @@ int main()
 /*
 Output :::>
 
+
 Enter the Number of Pages: 22
 
 Enter the Page Numbers: 7 0 1 2 0 3 0 4 2 3 0 3 0 3 2 1 2 0 1 7 0 1
+
+Enter the Number of Frames: 3
+Reference String           Page Frames
+        7               7      -1      -1
+        0               7       0      -1
+        1               7       0       1
+        2               2       0       1
+        0
+        3               2       3       1
+        0               2       3       0
+        4               4       3       0
+        2               4       2       0
+        3               4       2       3
+        0               0       2       3
+        3
+        0
+        3
+        2
+        1               0       1       3
+        2               0       1       2
+        0
+        1
+        7               7       1       2
+        0               7       0       2
+        1               7       0       1
+Page Fault: 15
 */
